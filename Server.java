@@ -58,9 +58,9 @@ public class Server {
 		}
 	}
 
-	private static void createServer(String serverAddress, int serverPort) throws IOException {
-		setServerPort();
+	private static void createServer() throws IOException {
 		setServerAddress();
+		setServerPort();
 		listener = new ServerSocket();
 		listener.setReuseAddress(true);
 		boolean serverNotCreated = true;
@@ -80,9 +80,8 @@ public class Server {
 
 	public static void main(String[] args) {
 		try {
-
 			try {
-				createServer(serverAddress, serverPort);
+				createServer();
 			} catch (Exception e) {
 				System.out.println("Une erreur inattendue est survenue lors de la création du serveur:\n" + e);
 			}
