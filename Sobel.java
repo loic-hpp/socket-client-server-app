@@ -1,5 +1,12 @@
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+
+import javax.imageio.ImageIO;
 
 public class Sobel {
 
@@ -56,7 +63,7 @@ public class Sobel {
         return image;
     }
 
-    private static int getGrayScale(int rgb) {
+    private int getGrayScale(int rgb) {
         int r = (rgb >> 16) & 0xff;
         int g = (rgb >> 8) & 0xff;
         int b = (rgb) & 0xff;
@@ -67,5 +74,27 @@ public class Sobel {
 
         return gray;
     }
+
+    		public BufferedImage getImage(Socket socket) throws Exception {
+			DataInputStream in = new DataInputStream(socket.getInputStream());
+			// Read the length of the byte array
+			int length = in.readInt();
+			byte[] imageBytes = new byte[length];
+			in.readFully(imageBytes);
+
+			ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
+			BufferedImage receivedImage = ImageIO.read(bais);
+			bais.close();
+			return receivedImage;
+		}
+
+		public void sendImage(BufferedImage image, Socket socket) throws Exception {
+			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			ImageIO.write(image, "png", baos);
+			byte[] imageBytes = baos.toByteArray();
+			out.writeInt(imageBytes.length);
+			out.write(imageBytes);
+		}
 
 }

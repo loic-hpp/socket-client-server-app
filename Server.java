@@ -72,28 +72,6 @@ public class Server {
 			System.out.println("New connection with client#" + "at" + clientSocket);
 		}
 
-		private BufferedImage getImage() throws Exception {
-			DataInputStream in = new DataInputStream(this.clientSocket.getInputStream());
-			// Read the length of the byte array
-			int length = in.readInt();
-			byte[] imageBytes = new byte[length];
-			in.readFully(imageBytes);
-
-			ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
-			BufferedImage receivedImage = ImageIO.read(bais);
-			bais.close();
-			return receivedImage;
-		}
-
-		private void sendImage(BufferedImage image) throws Exception {
-			DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos);
-			byte[] imageBytes = baos.toByteArray();
-			out.writeInt(imageBytes.length);
-			out.write(imageBytes);
-		}
-
 		public void run() {
 			try {
 				DataInputStream in = new DataInputStream(clientSocket.getInputStream());
@@ -108,7 +86,7 @@ public class Server {
 				if (isAuthenticated) {
 					try {
 						Sobel sobel = new Sobel();
-						sendImage(sobel.filterImage(getImage()));
+						sobel.sendImage(sobel.filterImage(sobel.getImage(clientSocket)), clientSocket);
 					} catch (Exception e) {
 						System.out.println("Une erreur est survenue lors du traitement de l'image:\n" + e);
 					}
