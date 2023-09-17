@@ -11,59 +11,12 @@ public class Server {
 	private static String serverAddress;
 	private static int serverPort;
 	private static Scanner scanner = new Scanner(System.in);
-
-	private static boolean isValidIpAddress(String ipAddress) {
-
-		String[] addressArr = ipAddress.replace(".", ",").split(",");
-		if (addressArr.length != 4)
-			return false;
-		else {
-			for (String octet : addressArr) {
-				try {
-					int integerOctet = Integer.parseInt(octet);
-					if (integerOctet < 0 || integerOctet > 255)
-						return false;
-				} catch (Exception e) {
-					return false;
-				}
-			}
-		}
-		return true;
-	}
-
-	private static void setServerAddress() {
-		boolean isValidAddress = false;
-		String address;
-		while (!isValidAddress) {
-			System.out.println("Entrer l'adresse du server :\t");
-			address = scanner.nextLine();
-			if (isValidIpAddress(address)) {
-				serverAddress = address;
-				isValidAddress = true;
-			} else
-				System.out.println(
-						"L'adresse saisie est invalide veuillez entrer une adresse au format X.X.X.X\nOù X est entre 0 et 255");
-
-		}
-	}
-
-	private static void setServerPort() {
-		boolean isInvalidPort = true;
-		int port;
-		while (isInvalidPort) {
-			System.out.println("Entrer le port du server :\t");
-			port = scanner.nextInt();
-			if (port >= 5000 && port <= 5050) {
-				serverPort = port;
-				isInvalidPort = false;
-			} else
-				System.out.println("Le numéro de port entre est invalide veuillez entrer un numéro entre 5000 et 5050");
-		}
-	}
+	private static Validator validator = new Validator(scanner);
+	private static Authenticator authenticator = new Authenticator();
 
 	private static void createServer() throws IOException {
-		setServerAddress();
-		setServerPort();
+		serverAddress = validator.setServerAddress();
+		serverPort = validator.setServerPort();
 		listener = new ServerSocket();
 		listener.setReuseAddress(true);
 		boolean serverNotCreated = true;
@@ -73,7 +26,7 @@ public class Server {
 				serverNotCreated = false;
 			} catch (Exception e) {
 				System.out.println("L'adresse ip fournie n'est pas celle de votre ordinateur");
-				setServerAddress();
+				serverAddress = validator.setServerAddress();
 			}
 		}
 
@@ -108,9 +61,13 @@ public class Server {
 
 	private static class ClientHandler extends Thread {
 		private Socket clientSocket;
+		private boolean isAuthenticated;
+		private String username;
+		private String password;
 
 		public ClientHandler(Socket socket) {
 			this.clientSocket = socket;
+			isAuthenticated = false;
 			System.out.println("New connection with client#" + "at" + clientSocket);
 		}
 
@@ -127,8 +84,8 @@ public class Server {
 			return receivedImage;
 		}
 
-		private void sendImage(BufferedImage image) throws Exception{
-			DataOutputStream out = new DataOutputStream(this.clientSocket.getOutputStream());	
+		private void sendImage(BufferedImage image) throws Exception {
+			DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(image, "png", baos);
 			byte[] imageBytes = baos.toByteArray();
@@ -138,13 +95,24 @@ public class Server {
 
 		public void run() {
 			try {
-				try {
-					Sobel sobel = new Sobel();
-					sendImage(sobel.filterImage(getImage()));
-				 } catch (Exception e) {
-					System.out.println("Une erreur est survenue lors du traitement de l'image:\n" + e);
-				 }
-				
+				DataInputStream in = new DataInputStream(clientSocket.getInputStream());
+				DataOutputStream out = new DataOutputStream(clientSocket.getOutputStream());
+				while (!isAuthenticated) {
+					username = in.readUTF();
+					password = in.readUTF();
+					System.out.println("username");
+					isAuthenticated = authenticator.authenticate(username, password);
+					out.writeBoolean(isAuthenticated);
+				}
+				if (isAuthenticated) {
+					try {
+						Sobel sobel = new Sobel();
+						sendImage(sobel.filterImage(getImage()));
+					} catch (Exception e) {
+						System.out.println("Une erreur est survenue lors du traitement de l'image:\n" + e);
+					}
+				}
+
 			} catch (Exception e) {
 				System.out.println("Error handling client#" + clientSocket + e);
 			} finally {
