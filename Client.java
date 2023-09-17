@@ -24,12 +24,10 @@ public class Client {
 		ImageIO.write(image, format, outputfile);
 	}
 
-	private static BufferedImage readImageFile(String imageName) throws IOException{
-		String test = "./"+imageName;
-		System.out.println(test);
-		File f = new File("./"+imageName);
-        BufferedImage image = ImageIO.read(f);
-        return image;
+	private static BufferedImage readImageFile(String imageName) throws IOException {
+		File f = new File("./" + imageName);
+		BufferedImage image = ImageIO.read(f);
+		return image;
 	}
 
 	public static void main(String[] args) {
@@ -57,25 +55,34 @@ public class Client {
 				isClientAuthenticated = in.readBoolean();
 			}
 
-			if(isClientAuthenticated){
-				String imageName;
+			if (isClientAuthenticated) {
+				String imageName = "";
 				Sobel sobel = new Sobel();
-				System.out.println("Entrer le nom de l'image");
-				imageName = scanner.nextLine();
-				String[] imageNameInfo = imageName.replace(".", ",").split(",");
-
-
-				BufferedImage imageBuffer = readImageFile(imageName);
-
-				sobel.sendImage(imageBuffer,socket,imageNameInfo[1]);
+				String[] imageNameInfo;
+				boolean imageNameInvalid = true;
+				while (imageNameInvalid) {
+					System.out.println("Entrer le nom de l'image");
+					imageName = scanner.nextLine();
+					try {
+						BufferedImage imageBuffer = readImageFile(imageName);
+						imageNameInfo = imageName.replace(".", ",").split(",");
+						sobel.sendImage(imageBuffer, socket, imageNameInfo[1]);
+					} catch (Exception e) {
+						System.out.println(
+								"La lecture de l'image a échoué veuillez vérifier le nom de l'image et réessayer\n"
+										+ e);
+					}
+					imageNameInvalid = false;
+				}
+				imageNameInfo = imageName.replace(".", ",").split(",");
+				System.out.println("Image envoyée pour traitement");
 				out.writeUTF(imageNameInfo[1]);
-
-				createImage(sobel.getImage(socket), imageNameInfo[0] ,imageNameInfo[1]);
-
-
+				createImage(sobel.getImage(socket), imageNameInfo[0], imageNameInfo[1]);
+				System.out.println(
+						" L'image a été créé a l'emplacement " + System.getProperty("user.dir") + "\\" + imageName);
 			}
 
-			// get Byteimage et turn into file 
+			// get Byteimage et turn into file
 
 			scanner.close();
 			socket.close();

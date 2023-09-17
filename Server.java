@@ -72,7 +72,7 @@ public class Server {
 		public ClientHandler(Socket socket) {
 			this.clientSocket = socket;
 			isAuthenticated = false;
-			System.out.println("New connection with client#" + "at" + clientSocket);
+			System.out.println("Nouvelle connexion" + " sur " + clientSocket);
 		}
 
 		public void run() {
@@ -113,7 +113,7 @@ public class Server {
 				} catch (IOException e) {
 					System.out.println("Could not close a socket");
 				}
-				System.out.println("Connection with client#" + clientSocket + "closed");
+				System.out.println("Connexion sur " + clientSocket + " fermée");
 			}
 
 		}
