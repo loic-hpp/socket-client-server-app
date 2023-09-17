@@ -75,26 +75,26 @@ public class Sobel {
         return gray;
     }
 
-    		public BufferedImage getImage(Socket socket) throws Exception {
-			DataInputStream in = new DataInputStream(socket.getInputStream());
-			// Read the length of the byte array
-			int length = in.readInt();
-			byte[] imageBytes = new byte[length];
-			in.readFully(imageBytes);
+    public BufferedImage getImage(Socket socket) throws Exception {
+        DataInputStream in = new DataInputStream(socket.getInputStream());
+        // Read the length of the byte array
+        int length = in.readInt();
+        byte[] imageBytes = new byte[length];
+        in.readFully(imageBytes);
 
-			ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
-			BufferedImage receivedImage = ImageIO.read(bais);
-			bais.close();
-			return receivedImage;
-		}
+        ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
+        BufferedImage receivedImage = ImageIO.read(bais);
+        bais.close();
+        return receivedImage;
+    }
 
-		public void sendImage(BufferedImage image, Socket socket) throws Exception {
-			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			ImageIO.write(image, "png", baos);
-			byte[] imageBytes = baos.toByteArray();
-			out.writeInt(imageBytes.length);
-			out.write(imageBytes);
-		}
+    public void sendImage(BufferedImage image, Socket socket, String imageFormat) throws Exception {
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(image, imageFormat, baos);
+        byte[] imageBytes = baos.toByteArray();
+        out.writeInt(imageBytes.length);
+        out.write(imageBytes);
+    }
 
 }
