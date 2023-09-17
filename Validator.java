@@ -12,7 +12,14 @@ public class Validator {
         int port = 0;
         while (isInvalidPort) {
             System.out.println("Entrer le port du server :\t");
+            try {
             port = scanner.nextInt();
+            scanner.nextLine();
+            } catch (Exception e) {
+                port = 0;
+                System.out.println("Le numéro de port doit être un entier réessayer");
+                scanner.nextLine();
+            }
             if (port >= 5000 && port <= 5050) {
                 isInvalidPort = false;
             } else

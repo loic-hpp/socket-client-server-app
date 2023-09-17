@@ -25,8 +25,9 @@ public class Server {
 				listener.bind(new InetSocketAddress(serverAddress, serverPort));
 				serverNotCreated = false;
 			} catch (Exception e) {
-				System.out.println("L'adresse ip fournie n'est pas celle de votre ordinateur");
+				System.out.println("L'adresse ip fournie n'est pas celle de votre ordinateur ou le port est en cours d'utilisation\n" + e);
 				serverAddress = validator.setServerAddress();
+				serverPort = validator.setServerPort();
 			}
 		}
 
