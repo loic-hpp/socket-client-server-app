@@ -23,9 +23,17 @@ public class Client {
 
 	public static void main(String[] args) {
 		try {
-			serverAddress =  validator.setServerAddress();
-			serverPort = validator.setServerPort();
-			socket = new Socket(serverAddress, serverPort);
+			boolean isConnectedToServer = false;
+			while (!isConnectedToServer) {
+				serverAddress = validator.setServerAddress();
+				serverPort = validator.setServerPort();
+				try {
+					socket = new Socket(serverAddress, serverPort);
+					isConnectedToServer = true;
+				} catch (Exception e) {
+					System.out.println("Les informations du serveur sont incorrectes\n" + e);
+				}
+			}
 			DataInputStream in = new DataInputStream(socket.getInputStream());
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 			while (!isClientAuthenticated) {
