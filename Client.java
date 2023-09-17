@@ -79,7 +79,7 @@ public class Client {
 				out.writeUTF(imageNameInfo[1]);
 				createImage(sobel.getImage(socket), imageNameInfo[0], imageNameInfo[1]);
 				System.out.println(
-						" L'image a été créé a l'emplacement " + System.getProperty("user.dir") + "\\" + imageName);
+						" L'image a été créée a l'emplacement " + System.getProperty("user.dir") + "\\" + imageName);
 			}
 
 			// get Byteimage et turn into file

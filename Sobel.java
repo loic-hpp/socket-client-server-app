@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 public class Sobel {
 
+    // Source: https://stackoverflow.com/questions/41468661/sobel-edge-detecting-program-in-java
     public BufferedImage filterImage(BufferedImage image) {
         int x = image.getWidth();
         int y = image.getHeight();
